@@ -166,6 +166,7 @@ class AmazonOrder extends AmazonOrderCore
         $d['PurchaseDate'] = (string)$xml->PurchaseDate;
         $d['LastUpdateDate'] = (string)$xml->LastUpdateDate;
         $d['OrderStatus'] = (string)$xml->OrderStatus;
+        $d['OrderType'] = (string)$xml->OrderType;
         if (isset($xml->FulfillmentChannel)) {
             $d['FulfillmentChannel'] = (string)$xml->FulfillmentChannel;
         }
@@ -179,8 +180,10 @@ class AmazonOrder extends AmazonOrderCore
             $d['ShipServiceLevel'] = (string)$xml->ShipServiceLevel;
         }
         if (isset($xml->ShippingAddress)) {
+            
             $d['ShippingAddress'] = array();
             $d['ShippingAddress']['Name'] = (string)$xml->ShippingAddress->Name;
+            $d['ShippingAddress']['AddressType'] = (string)$xml->ShippingAddress->AddressType;
             $d['ShippingAddress']['AddressLine1'] = (string)$xml->ShippingAddress->AddressLine1;
             $d['ShippingAddress']['AddressLine2'] = (string)$xml->ShippingAddress->AddressLine2;
             $d['ShippingAddress']['AddressLine3'] = (string)$xml->ShippingAddress->AddressLine3;
@@ -583,7 +586,49 @@ class AmazonOrder extends AmazonOrderCore
             return false;
         }
     }
-
+//changes by sharad
+public function getpremiumorder()
+{
+    if (isset($this->data['IsPremiumOrder'])) {
+        return $this->data['IsPremiumOrder'];
+    } else {
+        return false;
+    }
+} 
+public function getisprime()
+{
+    if (isset($this->data['IsPrime'])) {
+        return $this->data['IsPrime'];
+    } else {
+        return false;
+    }
+}
+public function getisbusinessorder()
+{
+    if (isset($this->data['IsBusinessOrder'])) {
+        return $this->data['IsBusinessOrder'];
+    } else {
+        return false;
+    }
+}
+public function getordertype()
+{
+  
+    if (isset($this->data['OrderType'])) {
+        return $this->data['OrderType'];
+    } else {
+        return false;
+    }
+}
+public function getisreplacementorder()
+{
+    if (isset($this->data['IsReplacementOrder'])) {
+        return $this->data['IsReplacementOrder'];
+    } else {
+        return false;
+    }
+}
+//End sharad changes
     /**
      * Returns the Amazon-generated email address of the buyer.
      *
