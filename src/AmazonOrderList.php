@@ -58,13 +58,15 @@ class AmazonOrderList extends AmazonOrderCore implements Iterator
         //     throw new \Exception('Config file does not exist!');
         // }
 
-        $store = Config::get('amazon-mws.store');
+        /*
+                $store = Config::get('amazon-mws.store');
 
-        if (isset($store[$s]) && array_key_exists('marketplaceId', $store[$s])) {
-            $this->options['MarketplaceId.Id.1'] = $store[$s]['marketplaceId'];
-        } else {
-            $this->log("Marketplace ID is missing", 'Urgent');
-        }
+                if (isset($store[$s]) && array_key_exists('marketplaceId', $store[$s])) {
+                    $this->options['MarketplaceId.Id.1'] = $store[$s]['marketplaceId'];
+                } else {
+                    $this->log("Marketplace ID is missing", 'Urgent');
+                }
+        */
 
         if (isset($THROTTLE_LIMIT_ORDERLIST)) {
             $this->throttleLimit = $THROTTLE_LIMIT_ORDERLIST;
@@ -75,6 +77,32 @@ class AmazonOrderList extends AmazonOrderCore implements Iterator
         $this->throttleGroup = 'ListOrders';
     }
 
+    public function setMarketplaceIds($s)
+    {
+        if ($s && is_string($s)) {
+            $this->resetMarketplaceIds();
+            $this->options['MarketplaceId.Id.1'] = $s;
+        } else {
+            if ($s && is_array($s)) {
+                $this->resetMarketplaceIds();
+                $i = 1;
+                foreach ($s as $x) {
+                    $this->options['MarketplaceId.Id.' . $i] = $x;
+                    $i++;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+    public function resetMarketplaceIds()
+    {
+        foreach ($this->options as $op => $junk) {
+            if (preg_match("#MarketplaceId#", $op)) {
+                unset($this->options[$op]);
+            }
+        }
+    }
     /**
      * Returns whether or not a token is available.
      * @return boolean
@@ -128,6 +156,7 @@ class AmazonOrderList extends AmazonOrderCore implements Iterator
             if ($after > $before) {
                 $after = $this->genTime($upper . ' - 150 sec');
             }
+           
             if ($mode == 'Created') {
                 $this->options['CreatedAfter'] = $after;
                 if ($before) {
@@ -360,17 +389,17 @@ class AmazonOrderList extends AmazonOrderCore implements Iterator
         }
 
         $this->prepareToken();
+      
 
         $url = $this->urlbase . $this->urlbranch;
 
         $query = $this->genQuery();
-
+ 
         $path = $this->options['Action'] . 'Result';
         if ($this->mockMode) {
             $xml = $this->fetchMockFile()->$path;
         } else {
             $response = $this->sendRequest($url, array('Post' => $query));
-
             if (!$this->checkResponse($response)) {
                 return false;
             }
